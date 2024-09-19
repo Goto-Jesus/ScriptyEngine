@@ -1,0 +1,101 @@
+@font-face {
+  font-family: 'DejaVuSansMono'; /* Название шрифта */
+  src: url('../fonts/DejaVuSansMono.ttf') format('ttf'); /* Путь к вашему шрифту */
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: monospace;
+  font-variant-numeric: tabular-nums lining-nums; /* для отступов цыфр	 */
+  white-space:pre-wrap;
+  font-kerning:none;
+  font-size: 11.88px;
+  font-weight:1000;
+  line-height:14px;
+  word-spacing:0px;
+  letter-spacing:0px;
+  
+  color: white;
+
+  text-shadow:
+  1px  1px 0 black,
+  1px -1px 0 black,
+   -1px  1px 0 black,
+   -1px -1px 0 black,
+    1px  0   0 black,
+   -1px  0   0 black,
+    0    1px 0 black,
+    0   -1px 0 black; 
+   
+  background-color: #303030;
+}
+
+#frames {
+  color: LightSalmon;
+  float: right;
+}
+
+#hero {
+  color: aquamarine;
+}
+
+#home {
+  color: cadetblue;
+}
+
+#world {
+  display: inline-block;
+  background-color: rgb(102 60 65);
+  /* user-select: none; */
+  border-radius: 2px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 4px;
+
+  width: max-content;
+  margin: 0 auto;
+
+  border: 1px solid rgb(80, 80, 80);
+  border-radius: 4px;
+  padding: 4px;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); 
+  background-color:black;
+}
+
+.block__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.button {
+  display: inline-block;
+  height: 100%;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  background-color: black;
+  color: LightSalmon;
+  border: 1px solid LightSalmon;
+}
+
+button:hover {
+  color: black;
+  background-color: LightSalmon;
+}
+
+.button--active, button:active {
+  color: black;
+  background-color: aquamarine !important;
+  border: 1px solid aquamarine !important;
+}

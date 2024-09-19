@@ -1,0 +1,9 @@
+{
+  "include": ["src/*.ts"],
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "target": "es5"
+  }
+}
