@@ -1,3 +1,4 @@
+import { Size } from "../../../utils/Size.js";
 import { Vector2D } from "../../../utils/Vector2D.js";
 import { Component } from "./Component.js";
 
@@ -26,10 +27,7 @@ class Collider2D extends Component {
 
 export class BoxCollider2D extends Collider2D {
   constructor(
-    size = {
-      width: 1,
-      height: 1,
-    },
+    size = new Size(1, 1),
     localPosition = new Vector2D(),
     physicMaterial = null
   ) {
@@ -37,6 +35,7 @@ export class BoxCollider2D extends Collider2D {
     this.size = size;
     this.globalPosition = new Vector2D();
     this.colliderPosition = new Vector2D();
+    this.isStatic = true;
   }
 
   attach(gameObject) {
@@ -76,7 +75,7 @@ export class BoxCollider2D extends Collider2D {
   }
 
   getOverlap(other = new BoxCollider2D(), expand = 0) {
-    const expandedOther = {
+    const expanded = {
       x: other.colliderPosition.x - expand,
       y: other.colliderPosition.y - expand,
       width: other.size.width + expand * 2,
@@ -84,24 +83,47 @@ export class BoxCollider2D extends Collider2D {
     };
 
     // Вычисляем смещения по осям
-    const right =
-      expandedOther.x + expandedOther.width - this.colliderPosition.x; // справа
-    const left = this.colliderPosition.x + this.size.width - expandedOther.x; // слева
-    const bottom =
-      expandedOther.y + expandedOther.height - this.colliderPosition.y; // снизу
-    const up = this.colliderPosition.y + this.size.height - expandedOther.y; // сверху
+    const right = expanded.x + expanded.width - this.colliderPosition.x; // справа
+    const left = this.colliderPosition.x + this.size.width - expanded.x; // слева
+    const bottom = expanded.y + expanded.height - this.colliderPosition.y; // снизу
+    const top = this.colliderPosition.y + this.size.height - expanded.y; // сверху
 
     // Определяем минимальные пересечения по осям
     const overlapX = right < left ? right : -left;
-    const overlapY = bottom < up ? bottom : -up;
+    const overlapY = bottom < top ? bottom : -top;
 
-    // Выбираем меньшую величину пересечения и обнуляем другую
-    const rollback =
-      Math.abs(overlapX) < Math.abs(overlapY)
-        ? { x: overlapX, y: 0 } // Столкновение по оси X
-        : { x: 0, y: overlapY }; // Столкновение по оси Y
+    // Если сталкиваемся с углом (есть пересечение по обеим осям)
+    const rollback = {
+      x: overlapX,
+      y: overlapY,
+    };
 
-    return new Vector2D(rollback.x, rollback.y); // Возвращаем откат
+    const overlap = {
+      x: overlapX,
+      y: overlapY,
+    };
+
+    // Проверка для "чистого" столкновения по одной оси
+    if (Math.abs(overlapX) > Math.abs(overlapY)) {
+      rollback.x = 0; // Столкновение по Y
+    }
+    if (Math.abs(overlapY) > Math.abs(overlapX)) {
+      rollback.y = 0; // Столкновение по X
+    }
+
+    // my -------------
+    if (Math.abs(overlapX) > Math.round(this.size.width)) {
+      overlap.x = 0;
+    }
+    if (Math.abs(overlapY) > Math.round(this.size.height)) {
+      overlap.y = 0;
+    }
+
+    // В случае равных пересечений, оставить откат по обеим осям (например, для углов)
+    return {
+      rollback: new Vector2D(rollback.x, rollback.y),
+      overlap: new Vector2D(overlap.x, overlap.y),
+    };
   }
 
   getColliderTouch(other, expand = 1) {
@@ -109,6 +131,15 @@ export class BoxCollider2D extends Collider2D {
       return Vector2D.zero;
     }
 
-    return this.getOverlap(other, expand);
+    return this.getOverlap(other, expand).rollback;
   }
 }
+
+
+/* 
+
+  
+
+
+
+*/

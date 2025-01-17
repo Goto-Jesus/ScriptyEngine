@@ -79,6 +79,14 @@ export class Vector2D {
     return this; // Если длина вектора не превышает maxLength, возвращаем исходный вектор
   }
 
+
+  maxRadius(v = new Vector2D()) {
+    const x = this.x > 0 ? Math.max(this.x) : Math.floor(this.x);
+    const y = this.y > 0 ? Math.ceil(this.y) : Math.floor(this.y);
+    return new Vector2D(x, y);
+  }
+
+
   roundRadius() {
     const x = this.x > 0 ? Math.ceil(this.x) : Math.floor(this.x);
     const y = this.y > 0 ? Math.ceil(this.y) : Math.floor(this.y);

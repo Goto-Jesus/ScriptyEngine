@@ -1,3 +1,4 @@
+import { Vector2D } from "../../utils/Vector2D.js";
 import { Component } from "./Components/Component.js";
 import { Transform } from "./Components/Transform.js";
 
@@ -75,7 +76,7 @@ export class GameObject {
     });
   }
 
-  setPosition(position) {
+  setPosition(position = new Vector2D()) {
     const oldPosition = this.transform.position;
     this.transform.position = position;
 

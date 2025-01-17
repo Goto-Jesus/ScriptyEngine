@@ -42,7 +42,7 @@ const scene = new Scene();
 // Home
 scene.createObject({
   name: "home",
-  position: new Vector2D(36, 14),
+  position: new Vector2D(82, 1),
   image: homeImage,
 });
 
@@ -61,68 +61,99 @@ const bicycle = scene.createObject({
 
 let reverseDirection = false;
 
+// if (true) {
 // Boxes
-// scene.createObject({
-//   name: "box",
-//   position: new Vector2D(40, 10),
-//   image: box_5x5,
-//   collider: {
-//     size: new Size(9, 5),
-//   },
-//   rigidbody: true,
-// });
-
-
-// Ball
-const ball = scene.createObject({
-  name: "ball",
-  position: new Vector2D(30, 2),
-  image: ballImage,
+scene.createObject({
+  name: "box",
+  position: new Vector2D(40, 10),
+  image: box_5x5,
   collider: {
-    size: new Size(4, 2),
-    physicMaterial: new PhysicMaterial(0, 1),
+    size: new Size(9, 5),
   },
   rigidbody: true,
 });
-// const ball2 = scene.createObject({
-//   name: "ball",
-//   position: new Vector2D(10, 4),
-//   image: ballImage,
-//   collider: {
-//     size: new Size(4, 2),
-//     physicMaterial: new PhysicMaterial(0, 1),
-//   },
-//   rigidbody: true,
-// });
-// const ball3 = scene.createObject({
-//   name: "ball",
-//   position: new Vector2D(20, 2),
-//   image: ballImage,
-//   collider: {
-//     size: new Size(4, 2),
-//     physicMaterial: new PhysicMaterial(0, 1),
-//   },
-//   rigidbody: true,
-// });
 
-ball.getComponent(Rigidbody2D).applyForce(new Vector2D(2220, 2220));
-// ball2.getComponent(Rigidbody2D).applyForce(new Vector2D(22000, 2220));
-// ball3.getComponent(Rigidbody2D).applyForce(new Vector2D(-22000, 990));
+
+// Ball
+  const ball = scene.createObject({
+    name: "ball1",
+    position: new Vector2D(30, 6),
+    image: [
+      "/1‾\\",
+      "\\__/",
+    ],
+    collider: {
+      size: new Size(4, 2),
+      physicMaterial: new PhysicMaterial(0, 1),
+    },
+    rigidbody: true,
+  });
+  const ball2 = scene.createObject({
+    name: "ball2",
+    position: new Vector2D(10, 4),
+    image: [
+      "/2‾\\",
+      "\\__/",
+    ],
+    collider: {
+      size: new Size(4, 2),
+      physicMaterial: new PhysicMaterial(0, 1),
+    },
+    rigidbody: true,
+  });
+  const ball3 = scene.createObject({
+    name: "ball3",
+    position: new Vector2D(20, 2),
+    image: [
+      "/3‾\\",
+      "\\__/",
+    ],
+    collider: {
+      size: new Size(4, 2),
+      physicMaterial: new PhysicMaterial(0, 1),
+    },
+    rigidbody: true,
+  });
+  
+  ball.getComponent(Rigidbody2D).applyForce(new Vector2D(2220, 2000));
+  ball2.getComponent(Rigidbody2D).applyForce(new Vector2D(12000, 2000));
+  ball3.getComponent(Rigidbody2D).applyForce(new Vector2D(-22000, 2000));
+// }
+
+
+const idle = [
+    "┌─────┐",
+    "│╔═══╗│",
+    "│║###║│",
+    "│╚═══╝│",
+    "└─────┘",
+];
+
+const crouch = [
+    "",
+    "┌─────┐",
+    "│╔═══╗│",
+    "│╚═══╝│",
+    "└─────┘",
+];
 
 // Player
 const player = scene.createObject({
   name: "player",
-  position: new Vector2D(90, 10),
+  position: new Vector2D(85, 5),
   collider: {
     size: new Size(5, 3),
     localPosition: Vector2D.one,
   },
+  image: idle,
   rigidbody: true,
 });
 
 const states = ["Idle", "Swim", "Jump", "Run", "Dead", "Crouch"];
 player.addComponent(new Animator());
 const animator = player.getComponent(Animator);
+
+// const animator = new Animator();
 
 states.forEach(state => {
   animator.addState(hero[state], state);
@@ -151,9 +182,47 @@ scene.createArea({
   position: new Vector2D(38, 32),
   size: new Size(36, 7),
 });
+
 scene.createArea({
   position: new Vector2D(80, 18),
   size: new Size(36, 7),
+});
+
+scene.createArea({
+  position: new Vector2D(80, 18),
+  size: new Size(36, 7),
+});
+
+
+for(let i = 0; i < 4; i++) {
+  scene.createArea({
+    position: new Vector2D(79 - i, 19 + i),
+    size: new Size(4, 3),
+  });
+}
+
+for(let i = 0; i < 4; i++) {
+  scene.createArea({
+    position: new Vector2D(-1 + i, 26 + i),
+    size: new Size(4, 3),
+  });
+}
+
+/*  */
+
+scene.createArea({
+  position: new Vector2D(15, 25),
+  size: new Size(1, 4),
+});
+
+scene.createArea({
+  position: new Vector2D(25, 24),
+  size: new Size(1, 4),
+});
+
+scene.createArea({
+  position: new Vector2D(35, 23),
+  size: new Size(1, 4),
 });
 
 
@@ -206,35 +275,69 @@ function cameraFollow() {
   cameraObject.transform.translate(cameraMove);
 }
 
+function controlCamera() {
+    if (keys.ArrowUp.pressed) {
+      cameraObject.transform.translate(Vector2D.up);
+    }
+    if (keys.ArrowDown.pressed) {
+      cameraObject.transform.translate(Vector2D.down);
+    }
+    if (keys.ArrowLeft.pressed) {
+      cameraObject.transform.translate(Vector2D.right);
+    }
+    if (keys.ArrowRight.pressed) {
+      cameraObject.transform.translate(Vector2D.left);
+    }
+}
+
 // Speed
 
 const bicycleControllerDelay = new Delay(5);
 const playerRb = player.getComponent(Rigidbody2D);
 
 let isGround = false;
+let isCrouch = false;
+let isJumping = false;
 
 function update(deltaTime) {
   scene.rigidbodys.forEach((rb) => rb.update(deltaTime));
 
+  // console.log("1", ball.transform.position);
+  // console.log("2", ball2.transform.position);
+
   if (cameraMovingDelay.isActive) {
     // cameraFollow();
+    controlCamera();
   }
-
-
 
   // #region (Player Controller)
 
-  isGround = playerRb.overlap.y <= 0;
+  isGround = playerRb.touchSide.bottom !== 0;
+  playerRb.velocity.x = 0;
+  playerRb.velocity.y = 0;
 
   if (isGround && !keys.KeyA.pressed && !keys.KeyD.pressed) {
     animator.playState(states[0]);
   }
 
-  if (isGround && keys.KeyW.down) {
-    playerRb.applyForce(new Vector2D(0, -200));
+  // if (isGround && keys.KeyW.pressed) {
+  //   playerRb.applyForce(new Vector2D(0, -100));
+  // }
+
+  if (keys.KeyW.pressed) {
+    playerRb.velocity.y = -10;
+    isJumping = true;
+  }
+  
+  if (isJumping && !keys.KeyW.pressed) {
+    playerRb.velocity.y = 0;
+    isJumping = false;
   }
 
-  playerRb.velocity.x = 0;
+  if (keys.KeyS.pressed) {
+    playerRb.velocity.y = 10;
+  }
+
 
   if (keys.KeyA.pressed) {
     playerRb.velocity.x = -10;
@@ -254,14 +357,28 @@ function update(deltaTime) {
     }
   }
 
-  if (keys.KeyS.pressed) {
+  console.log(playerRb.touchSide);
+
+  if (isCrouch && !keys.KeyS.pressed && playerRb.touchSideSecond.top === 0) {
+    playerRb.collider.setLocalPosition(Vector2D.one);
+    playerRb.collider.setSize(new Size(5, 3));
+    playerRb.gameObject.image.strings = idle;
+    isCrouch = false;
+  }
+
+  if (keys.KeyS.down) {
+    isCrouch = true;
+  }
+  
+  
+  if (isCrouch) {
     animator.playState(states[5]);
     playerRb.collider.setLocalPosition(new Vector2D(1, 2));
     playerRb.collider.setSize(new Size(5, 2));
-  } else {
-    playerRb.collider.setLocalPosition(Vector2D.one);
-    playerRb.collider.setSize(new Size(5, 3));
+    playerRb.gameObject.image.strings = crouch;
   }
+  
+
 
   if (!isGround) {
     animator.playState(states[2]); // Jump

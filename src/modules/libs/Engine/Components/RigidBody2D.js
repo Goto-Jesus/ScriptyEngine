@@ -10,10 +10,10 @@ class ForceMode {
   // p = F*t          =    impulse = Force * time
   // v = (F/m) * t    =    velocity = (Force / mass) * time
 
-  get Force () {}
-  get Acceleration () {}
-  get Impulse () {}
-  get Velocity () {}
+  get Force() {}
+  get Acceleration() {}
+  get Impulse() {}
+  get Velocity() {}
 }
 
 export class Rigidbody2D extends Component {
@@ -29,7 +29,12 @@ export class Rigidbody2D extends Component {
     this.acceleration = Vector2D.zero; // Текущее ускорение
     this.force = Vector2D.zero; // Текущая сила
     this.gravity = Vector2D.up.multiply(10); // Гравитация (ускорение вниз)
-    this.overlap = Vector2D.zero;
+    this.touchSide = {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    };
 
     this.collider = null;
     this.colliders = [];
@@ -42,6 +47,7 @@ export class Rigidbody2D extends Component {
     super.attach(gameObject);
     this.gameObject = this.gameObject;
     this.collider = this.gameObject.getComponent(BoxCollider2D);
+    this.collider.isStatic = false;
   }
 
   applyForce(force = new Vector2D()) {
@@ -49,15 +55,13 @@ export class Rigidbody2D extends Component {
   }
 
   update(deltaTime) {
-    if (this.gameObject.name === "player") {
-      console.log("player", this.overlap);
-    }
-
-    this.overlap = Vector2D.zero;
+    const inAir = this.touchSide.bottom === 0;
+    const onEdge =
+      this.touchSide.bottom === -1 &&
+      (this.touchSide.right === -1 || this.touchSide.left === 1);
 
     if (!this.isKinematic) {
-      // Применяем гравитацию
-      if (this.useGravity) {
+      if ((this.useGravity && inAir) || onEdge) {
         this.applyForce(this.gravity);
       }
 
@@ -66,21 +70,19 @@ export class Rigidbody2D extends Component {
       const speedX = new Vector2D(this.velocity.x, 0).magnitude();
       const speedY = new Vector2D(0, this.velocity.y).magnitude();
 
-      this.delayY.value = Math.round((deltaTime * 10) / speedX);
-      this.delayY.value = Math.round((deltaTime * 10) / speedY);
+      this.delayY.value = 1 || Math.round(200 / speedX);
+      this.delayY.value = 1 || Math.round(200 / speedY);
 
       if (this.delayX.isActive) {
-        this.gameObject.transform.translate( new Vector2D(
-          this.velocity.normalize().roundRadius().x,
-          0,
-        ));
+        this.gameObject.transform.translate(
+          new Vector2D(this.velocity.normalize().roundRadius().x, 0)
+        );
       }
 
       if (this.delayY.isActive) {
-        this.gameObject.transform.translate( new Vector2D(
-          0,
-          this.velocity.normalize().roundRadius().y,
-        ));
+        this.gameObject.transform.translate(
+          new Vector2D(0, this.velocity.normalize().roundRadius().y)
+        );
       }
     }
 
@@ -93,47 +95,157 @@ export class Rigidbody2D extends Component {
   checkCollisions() {
     // Получить список всех других коллайдеров в сцене
     const colliders = this.getColliders();
+    const overlapSpace = 1;
+    const collisionColliders = [];
+
+    this.touchSide = {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    };
+
+    this.touchSideSecond = {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+    };
 
     for (const collider of colliders) {
       if (
+        // collider.isStatic &&
         collider !== this.collider &&
-        this.collider.checkCollision(collider)
+        this.collider.checkCollision(collider, overlapSpace)
       ) {
-        this.resolveCollision(collider);
+        const { rollback, overlap } = this.collider.getOverlap(
+          collider,
+          overlapSpace
+        );
+
+        getTouch(this.touchSide, rollback);
+        getTouch(this.touchSideSecond, overlap);
+
+        collisionColliders.push(collider);
+      }
+    }
+
+    if (
+      this.touchSide.bottom !== 0 ||
+      this.touchSide.right !== 0 ||
+      this.touchSide.left !== 0 ||
+      this.touchSide.top !== 0
+    ) {
+      this.resolveCollision();
+
+      const mySet = new Set();
+
+      collisionColliders.forEach((c) => {
+        mySet.add(this.calculatePhysicCollision(c));
+      });
+
+      const bounciness = [...mySet][0];
+
+      // Горизонтальное столкновение
+      if (
+        this.touchSideSecond.left >= 1 ||
+        this.touchSideSecond.right <= -1 ||
+        this.touchSide.left >= 1 ||
+        this.touchSide.right <= -1
+      ) {
+        this.velocity.x = 0;
+        this.acceleration.x *= bounciness;
+      }
+
+      // Вертикальное столкновение
+      if (
+        this.touchSideSecond.top >= 1 ||
+        this.touchSideSecond.bottom <= -2 ||
+        this.touchSide.top >= 1 ||
+        this.touchSide.bottom <= -2
+      ) {
+        this.velocity.y = 0;
+        this.acceleration.y *= bounciness;
       }
     }
   }
 
-  resolveCollision(otherCollider = new BoxCollider2D()) {
-    // Простая обработка коллизий: остановить движение по оси, на которой произошло столкновение
-    const space = 1;
+  resolveCollision() {
+    let currentOverlap = new Vector2D();
+
+    // ygol
+    if (
+      this.touchSide.top >= 1 &&
+      this.touchSide.bottom < 0 &&
+      (this.touchSide.left >= 2 || this.touchSide.right <= -2)
+    ) {
+      this.gameObject.transform.position.y--;
+    }
+
+    // fff
+    if (this.touchSide.bottom === -2 && this.touchSide.top >= 1) {
+      if (this.touchSide.left === 0 && this.touchSideSecond.left >= 1) {
+        this.gameObject.transform.position.x++;
+      }
+      if (this.touchSide.right === 0 && this.touchSideSecond.right <= -1) {
+        this.gameObject.transform.position.x--;
+      }
+    }
+
+    // simple
+    if (this.touchSide.top > 0) {
+      this.gameObject.transform.position.y--;
+    }
+    if (this.touchSide.bottom < 0) {
+      this.gameObject.transform.position.y++;
+    }
+    if (this.touchSide.left > 0) {
+      this.gameObject.transform.position.x--;
+    }
+    if (this.touchSide.right < 0) {
+      this.gameObject.transform.position.x++;
+    }
+
+    currentOverlap.x = this.touchSide.right + this.touchSide.left;
+    currentOverlap.y = this.touchSide.bottom + this.touchSide.top;
+
+    // if (this.gameObject.name === "player") {
+    //   console.log("rollback", this.touchSide);
+    //   console.log("overlap_", this.touchSideSecond);
+    // }
+
+    this.gameObject.transform.translate(currentOverlap);
+  }
+
+  calculatePhysicCollision(otherCollider = new BoxCollider2D()) {
     const { physicMaterial } = this.collider;
-    this.overlap = this.collider.getOverlap(otherCollider, space);
 
     let bounciness = 0;
 
     if (physicMaterial) {
-      let otherPhysicMaterial =
-        otherCollider.physicMaterial || new PhysicMaterial();
-      bounciness = -physicMaterial.combineBounciness(otherPhysicMaterial);
+      let otherPM = otherCollider.physicMaterial || new PhysicMaterial();
+      bounciness = -physicMaterial.combineBounciness(otherPM);
     }
 
-    if (Math.abs(this.overlap.x) < Math.abs(this.overlap.y)) {
-      // Вертикальное столкновение
-      this.velocity.y = 0;
-      this.acceleration.y *= bounciness;
-      this.gameObject.transform.position.y +=
-        this.overlap.y > 0 ? this.overlap.y - space : this.overlap.y + space;
-    } else {
-      // Горизонтальное столкновение
-      this.velocity.x = 0;
-      this.acceleration.x *= bounciness;
-      this.gameObject.transform.position.x +=
-        this.overlap.x > 0 ? this.overlap.x - space : this.overlap.x + space;
-    }
+    return bounciness;
   }
 
   getColliders() {
     return this.colliders;
+  }
+}
+
+function getTouch(touch, vector) {
+  if (vector.y > touch.top) {
+    touch.top = vector.y;
+  }
+  if (vector.y < touch.bottom) {
+    touch.bottom = vector.y;
+  }
+  if (vector.x > touch.left) {
+    touch.left = vector.x;
+  }
+  if (vector.x < touch.right) {
+    touch.right = vector.x;
   }
 }

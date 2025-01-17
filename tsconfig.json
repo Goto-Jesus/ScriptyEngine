@@ -1,9 +1,23 @@
 {
-  "include": ["src/*.ts"],
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "target": "es5"
-  }
+    "target": "ES6", // Версия JS на выходе
+    "module": "commonjs", // Система модулей
+    "strict": true, // Включить строгую проверку типов
+    "esModuleInterop": true, // Совместимость с ES-модулями
+    "outDir": "./dist", // Папка для скомпилированных файлов
+    "rootDir": "./src", // Исходники TypeScript
+    "skipLibCheck": true // Пропуск проверки типов в зависимостях
+  },
+  "include": ["src"], // Укажите, какие файлы включать
+  "exclude": ["node_modules"] // Исключите ненужные файлы
 }
+
+// {
+//   "include": ["src/*.ts"],
+//   "compilerOptions": {
+//     "forceConsistentCasingInFileNames": true,
+//     "strict": true,
+//     "noImplicitAny": true,
+//     "target": "es5"
+//   }
+// }

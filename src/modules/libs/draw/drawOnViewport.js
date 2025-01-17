@@ -68,7 +68,7 @@ function drawOnDisplay_MY(image, position, viewport, styleId = "") {
   return _viewport;
 }
 
-/* 
+/* */
 function drawOnDisplay_GPT(image, position, viewport, styleId = "") {
   const wrapper = styleId
     ? { start: `<i id="${styleId}">`, end: `</i>` }
@@ -153,4 +153,4 @@ function drawOnDisplay_GPT(image, position, viewport, styleId = "") {
 
   return _viewport;
 }
- */
+/* */
