@@ -1,30 +1,30 @@
 import {
   Camera,
   viewportSize,
-} from "./src/modules/libs/Engine/Components/Camera.js";
-import { hero } from "./src/modules/graphics/player/hero.js";
+} from "./modules/libs/Engine/Components/Camera.js";
+import { hero } from "./modules/graphics/player/hero.js";
 import {
   home as homeImage,
   bicycle as bicycleAnimation,
   water as waterAnimation,
   box_5x5,
   ball as ballImage,
-} from "./src/modules/graphics/graphics.js";
-import { changeContent } from "./src/modules/changeContent.js";
-import { Delay } from "./src/modules/libs/Engine/Other/Delay.js";
-import { Animation } from "./src/modules/libs/Engine/Components/Animation.js";
-import fpsCounter from "./src/modules/libs/Engine/Other/FPSCounter.js";
-import { GameObject } from "./src/modules/libs/Engine/GameObject.js";
-import { Vector2D } from "./src/modules/utils/Vector2D.js";
+} from "./modules/graphics/graphics.js";
+import { changeContent } from "./modules/changeContent.js";
+import { Delay } from "./modules/libs/Engine/Other/Delay.js";
+import { Animation } from "./modules/libs/Engine/Components/Animation.js";
+import fpsCounter from "./modules/libs/Engine/Other/FPSCounter.js";
+import { GameObject } from "./modules/libs/Engine/GameObject.js";
+import { Vector2D } from "./modules/utils/Vector2D.js";
 
-import { AsciiImage } from "./src/modules/libs/Engine/Components/Image.js";
-import { BoxCollider2D } from "./src/modules/libs/Engine/Components/Collider.js";
-import { Rigidbody2D } from "./src/modules/libs/Engine/Components/RigidBody2D.js";
-import { Game } from "./src/modules/libs/Engine/Game.js";
-import { Scene } from "./src/modules/libs/Engine/Scene.js";
-import { Size } from "./src/modules/utils/Size.js";
-import { PhysicMaterial } from "./src/modules/libs/Engine/Physic/PhysicMaterial.js";
-import { Animator } from "./src/modules/libs/Engine/Components/Animator.js";
+import { AsciiImage } from "./modules/libs/Engine/Components/Image.js";
+import { BoxCollider2D } from "./modules/libs/Engine/Components/Collider.js";
+import { Rigidbody2D } from "./modules/libs/Engine/Components/RigidBody2D.js";
+import { Game } from "./modules/libs/Engine/Game.js";
+import { Scene } from "./modules/libs/Engine/Scene.js";
+import { Size } from "./modules/utils/Size.js";
+import { PhysicMaterial } from "./modules/libs/Engine/Physic/PhysicMaterial.js";
+import { Animator } from "./modules/libs/Engine/Components/Animator.js";
 
 // ---------------------------------------------------------------------------
 

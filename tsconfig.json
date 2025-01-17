@@ -11,13 +11,3 @@
   "include": ["src"], // Укажите, какие файлы включать
   "exclude": ["node_modules"] // Исключите ненужные файлы
 }
-
-// {
-//   "include": ["src/*.ts"],
-//   "compilerOptions": {
-//     "forceConsistentCasingInFileNames": true,
-//     "strict": true,
-//     "noImplicitAny": true,
-//     "target": "es5"
-//   }
-// }
