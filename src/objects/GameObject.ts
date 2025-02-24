@@ -1,6 +1,6 @@
-import { Vector2D } from "../../utils/Vector2D.ts";
-import { Component } from "./Components/Component.ts";
-import { Transform } from "./Components/Transform.ts";
+import { Vector2D } from "../utils/Vector2D.ts";
+import { Component } from "../core/Component.ts";
+import { Transform } from "../components/Transform.ts";
 
 export class GameObject {
   constructor(

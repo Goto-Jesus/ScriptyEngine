@@ -1,9 +1,9 @@
-import { Component } from "./Component.js";
-import { Delay } from "../other/Delay.js";
+import { Component } from "../core/Component.ts";
+import { Delay } from "../libs/other/Delay.ts";
 
 export class Animation extends Component {
   constructor(
-    images = [new Image()],
+    images: Image[] = [new Image()],
     delay = 5,
     reverse = false,
     startFrame = 0
