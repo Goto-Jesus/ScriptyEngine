@@ -5,9 +5,9 @@
     "strict": true, // Включить строгую проверку типов
     "esModuleInterop": true, // Совместимость с ES-модулями
     "outDir": "./dist", // Папка для скомпилированных файлов
-    "rootDir": "./src", // Исходники TypeScript
+    "rootDir": "src_jss", // Исходники TypeScript
     "skipLibCheck": true // Пропуск проверки типов в зависимостях
   },
-  "include": ["src"], // Укажите, какие файлы включать
+  "include": ["src_js_js"], // Укажите, какие файлы включать
   "exclude": ["node_modules"] // Исключите ненужные файлы
 }
