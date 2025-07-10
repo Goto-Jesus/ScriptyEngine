@@ -1,3 +1,5 @@
+/* @import url("https://fontlibrary.org/face/dejavu-sans-mono"); */
+
 @font-face {
   font-family: 'DejaVuSansMono'; /* Название шрифта */
   src: url('../fonts/DejaVuSansMono.ttf') format('ttf'); /* Путь к вашему шрифту */
@@ -7,28 +9,29 @@
 }
 
 body {
-  font-family: monospace;
+  font-family: "Dejavu Sans Mono", monospace;
+  /* font-family: monospace; */
   font-variant-numeric: tabular-nums lining-nums; /* для отступов цыфр	 */
-  white-space:pre-wrap;
-  font-kerning:none;
+  white-space: pre-wrap;
+  font-kerning: none;
   font-size: 11.88px;
-  font-weight:1000;
-  line-height:14px;
-  word-spacing:0px;
-  letter-spacing:0px;
-  
+  font-weight: 1000;
+  line-height: 14px;
+  word-spacing: 0px;
+  letter-spacing: 0px;
+
   color: white;
 
   text-shadow:
-  1px  1px 0 black,
-  1px -1px 0 black,
-   -1px  1px 0 black,
-   -1px -1px 0 black,
-    1px  0   0 black,
-   -1px  0   0 black,
-    0    1px 0 black,
-    0   -1px 0 black; 
-   
+    1px 1px 0 black,
+    1px -1px 0 black,
+    -1px 1px 0 black,
+    -1px -1px 0 black,
+    1px 0 0 black,
+    -1px 0 0 black,
+    0 1px 0 black,
+    0 -1px 0 black;
+
   background-color: #303030;
 }
 
@@ -65,8 +68,8 @@ body {
   border-radius: 4px;
   padding: 4px;
 
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); 
-  background-color:black;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  background-color: black;
 }
 
 .block__header {
@@ -83,7 +86,7 @@ body {
   outline: none;
   cursor: pointer;
   transition: all 0.3s;
-  
+
   background-color: black;
   color: LightSalmon;
   border: 1px solid LightSalmon;
@@ -94,7 +97,8 @@ button:hover {
   background-color: LightSalmon;
 }
 
-.button--active, button:active {
+.button--active,
+button:active {
   color: black;
   background-color: aquamarine !important;
   border: 1px solid aquamarine !important;

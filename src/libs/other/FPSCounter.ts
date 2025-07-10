@@ -1,12 +1,12 @@
-import { Counter } from "./Counter.js";
+import { Counter } from './Counter';
 
 class FPSCounter {
-  constructor() {
-    this.fps = new Counter();
-    this.start = undefined;
-    this.remember = 0;
-    this.result = 0;
-  }
+  constructor(
+    private fps = new Counter(),
+    private start = 0,
+    private remember = 0,
+    private result = 0,
+  ) {}
 
   getFPS() {
     this.fps.increment();

@@ -1,45 +1,51 @@
-import { KeyControls } from "../keyboard/KeyControls.js";
+import { KeyControls } from './keyboard/KeyControls';
+
+type FrameCallback = (frameTime: number) => void;
 
 export class GameEngine {
-  constructor() {
-    this.isPaused = false;
-    this.goalFps = 60;
-    this.keyboard = new KeyControls([
-      "KeyW",
-      "KeyA",
-      "KeyS",
-      "KeyD",
-      "KeyE",
-      "Escape",
-      "ArrowUp",
-      "ArrowDown",
-      "ArrowLeft",
-      "ArrowRight",
-    ]);
-    Game.frameTime = 0;
-    Game.lastTime = 0;
+  static frameTime: number = 0;
+  static lastTime: number = 0;
+
+  constructor(
+    private isPaused = false,
+    private goalFps = 60,
+    public keyboard = new KeyControls([
+      'KeyW',
+      'KeyA',
+      'KeyS',
+      'KeyD',
+      'KeyE',
+      'Escape',
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+    ]),
+  ) {
+    GameEngine.frameTime = 0;
+    GameEngine.lastTime = 0;
   }
 
-  update(func) {
-    func(Game.frameTime);
+  update(func: FrameCallback) {
+    func(GameEngine.frameTime);
     this.keyboard.update();
   }
 
-  render(func) {
-    func(Game.frameTime);
+  render(func: FrameCallback) {
+    func(GameEngine.frameTime);
   }
 
-  loop(update, render) {
+  loop(update: FrameCallback, render: FrameCallback) {
     const fps = this.goalFps;
     const interval = 1000 / fps; // Время между кадрами в миллисекундах
-    Game.lastTime = performance.now();
+    GameEngine.lastTime = performance.now();
 
     const next = () => {
       const now = performance.now();
-      Game.frameTime = now - Game.lastTime;
+      GameEngine.frameTime = now - GameEngine.lastTime;
 
-      if (!this.isPaused && Game.frameTime >= interval) {
-        Game.lastTime = now - (Game.frameTime % interval); // Синхронизируем время
+      if (!this.isPaused && GameEngine.frameTime >= interval) {
+        GameEngine.lastTime = now - (GameEngine.frameTime % interval); // Синхронизируем время
         this.update(update); // Обновляем состояние игры
         this.render(render); // Отрисовываем игру
       }
@@ -54,7 +60,7 @@ export class GameEngine {
     this.isPaused = !this.isPaused;
 
     if (!this.isPaused) {
-      Game.lastTime = performance.now(); // Обновляем время при отключении паузы
+      GameEngine.lastTime = performance.now(); // Обновляем время при отключении паузы
     }
   }
 }

@@ -1,21 +1,52 @@
-import { Size } from "../utils/Size.ts";
-import { Vector2D } from "../utils/Vector2D.ts";
+import { Size } from '../utils/Size';
+import { Vector2D } from '../utils/Vector2D';
 
-import { generateArea } from "../ilbs/generates/generateArea.ts";
+import { generateArea } from '../libs/generates/generateArea';
 
-import { GameObject } from "./GameObject.js";
+import { GameObject } from '../objects/GameObject';
 
-import { AsciiImage } from "./Components/Image.js";
-import { Animation } from "./Components/Animation.js";
-import { BoxCollider2D } from "./components/Collider.js";
-import { Rigidbody2D } from "./Components/RigidBody2D.js";
+import { AsciiImage } from '../components/AsciiImage';
+import { Animation } from '../components/Animation';
+import { BoxCollider2D } from '../components/Collider';
+import { Rigidbody2D } from '../components/RigidBody2D';
+
+import { Component } from './Component';
+import { PhysicMaterial } from './physic/PhysicMaterial';
+
+interface AreaConfig {
+  name?: string;
+  position?: Vector2D;
+  size?: Size;
+  symbol?: string;
+  rigidbody?: Rigidbody2D | null;
+}
+
+interface AnimConfig {
+  images: string[][];
+  amountDelay: number;
+  reverse?: boolean | false;
+}
+
+interface ObjectConfig {
+  name?: string,
+  position?: { x: number, y: number } | Vector2D,
+  animation?: AnimConfig,
+  collider?: {
+    size?: { height: number, width: number } | Size,
+    localPosition?: { x: number, y: number } | Vector2D,
+    physicMaterial?: PhysicMaterial,
+  },
+  rigidbody?: boolean,
+  image?: string[],
+  customComponents?: Component[],
+}
 
 export class SceneManager {
-  constructor() {
-    this.gameObjects = [];
-    this.colliders = [];
-    this.rigidbodys = [];
-  }
+  constructor(
+    public gameObjects: GameObject[] = [],
+    public colliders: BoxCollider2D[] = [],
+    public rigidbodys: Rigidbody2D[] = [],
+  ) {}
 
   addObject(gameObject = new GameObject()) {
     this.gameObjects.push(gameObject);
@@ -29,10 +60,10 @@ export class SceneManager {
     }
   }
 
-  createObject(config = {}) {
+  createObject(config: ObjectConfig) {
     const {
-      name = "gameObject",
-      position = Vector2D.zero,
+      name = 'gameObject',
+      position: {x = 0, y = 0} = Vector2D.zero,
       animation = null,
       collider = null,
       rigidbody = null,
@@ -42,25 +73,29 @@ export class SceneManager {
 
     const newObject = new GameObject(name);
 
-    newObject.setPosition(position);
+    newObject.setPosition(new Vector2D(x, y));
 
     if (image) {
       newObject.addComponent(new AsciiImage(image));
     }
 
     if (animation) {
-      const { images, delay = 15, reverse = false } = animation;
+      const { images, amountDelay = 15, reverse = false } = animation;
 
-      newObject.addComponent(new Animation(images, delay, reverse));
+      newObject.addComponent(new Animation(images, amountDelay, reverse));
     }
 
     if (collider) {
-      const { size, localPosition, physicMaterial } = collider;
+      const {
+        size: { width, height } = {},
+        localPosition: { x=0, y =0 } = {},
+        physicMaterial,
+      } = collider;
 
       const newCollider = new BoxCollider2D(
-        size,
-        localPosition || Vector2D.zero,
-        physicMaterial,
+        new Size(width, height),
+        new Vector2D(x, y),
+        physicMaterial || null,
       );
 
       newObject.addComponent(newCollider);
@@ -69,6 +104,7 @@ export class SceneManager {
 
     if (rigidbody) {
       const newRb = new Rigidbody2D();
+
       newRb.colliders = this.colliders;
       this.rigidbodys.push(newRb);
       newObject.addComponent(newRb);
@@ -76,7 +112,7 @@ export class SceneManager {
 
     if (customComponents) {
       customComponents.forEach((component) =>
-        newObject.addComponent(component)
+        newObject.addComponent(component),
       );
     }
 
@@ -85,12 +121,12 @@ export class SceneManager {
     return newObject;
   }
 
-  createArea(config = {}) {
+  createArea(config: AreaConfig) {
     const {
-      name = "boxArea",
+      name = 'boxArea',
       position = Vector2D.zero,
       size = new Size(),
-      symbol = "█",
+      symbol = '█',
       rigidbody = null,
     } = config;
     const { width, height } = size;
@@ -100,12 +136,13 @@ export class SceneManager {
 
     newObject.setPosition(position);
     newObject.addComponent(new AsciiImage(generateArea(width, height, symbol)));
-    
+
     newObject.addComponent(newCollider);
     this.colliders.push(newCollider);
 
     if (rigidbody) {
       const newRb = new Rigidbody2D();
+
       newRb.colliders = this.colliders;
       this.rigidbodys.push(newRb);
       newObject.addComponent(newRb);

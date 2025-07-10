@@ -1,5 +1,5 @@
-{
-  "frames": [
+export const home = {
+  frames: [
     [
       "                    ___",
       "                   ║___║",

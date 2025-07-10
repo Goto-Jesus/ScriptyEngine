@@ -1,20 +1,27 @@
-import { Vector2D } from "../utils/Vector2D.ts";
-import { Component } from "../core/Component.ts";
-import { Transform } from "../components/Transform.ts";
+import { Vector2D } from '../utils/Vector2D';
+import { Component } from '../core/Component';
+import { Transform } from '../components/Transform';
+import { Image } from '../components/Image';
+import { Animation } from '../components/Animation';
+import { Animator } from '../components/Animator';
+
+type ImageTypes = Image | Animation | Animator;
 
 export class GameObject {
+  public image: ImageTypes | null = null;
+  public transform: Transform;
+
   constructor(
-    public name = "gameObject",
-    public tag = "default",
-    private transform = new Transform(),
+    public name = 'gameObject',
+    public tag = 'default',
     private components: Component[] = [],
-    private parent: GameObject | null = null, // Ссылка на родительский объект
-    private children: GameObject[] = [] // Массив дочерних объектов
+    private parent: GameObject | null = null,
+    public children: GameObject[] = [],
   ) {
-    this.transform.gameObject = this; // Связываем transform с gameObject
+    this.transform = new Transform(new Vector2D(), this);
   }
 
-  addChild(child) {
+  addChild(child: GameObject) {
     if (child.parent) {
       child.removeParent();
     }
@@ -23,7 +30,7 @@ export class GameObject {
     this.children.push(child);
   }
 
-  removeChild(child) {
+  removeChild(child: GameObject) {
     const index = this.children.indexOf(child);
 
     if (index > -1) {
@@ -40,16 +47,16 @@ export class GameObject {
 
   /* -------------------------------------------------------------------- */
 
-  resetChildrenPosition(x = 0, y = 0) {
+  resetChildrenPosition(x_ = 0, y_ = 0) {
     if (this.children.length) {
-      const { _x: parentX, _y: parentY } = this.transform.position;
+      const { x: parentX, y: parentY } = this.transform.position;
 
       this.children.forEach((child) => {
         const { x: childX, y: childY } = child.transform.position;
-        const childPosition = {
-          x: parentX + childX + x,
-          y: parentY + childY + y,
-        };
+        const childPosition = new Vector2D(
+          parentX + childX + x_,
+          parentY + childY + y_,
+        );
 
         child.setPosition(childPosition);
       });
@@ -57,21 +64,21 @@ export class GameObject {
   }
 
   // Метод для вычисления мировой позиции с учетом родительских объектов
-  getWorldPosition() {
+  getWorldPosition(): Vector2D {
     if (this.parent) {
       const parentPosition = this.parent.getWorldPosition();
 
-      return {
-        x: this.transform.position.x + parentPosition.x,
-        y: this.transform.position.y + parentPosition.y,
-      };
+      return new Vector2D(
+        this.transform.position.x + parentPosition.x,
+        this.transform.position.y + parentPosition.y,
+      );
     }
 
     return this.transform.position;
   }
 
   // Обновление позиции всех дочерних объектов при изменении родительской позиции
-  updateChildrenPosition(direction) {
+  updateChildrenPosition(direction: Vector2D) {
     this.children.forEach((child) => {
       child.transform.translate(direction);
     });
@@ -81,10 +88,10 @@ export class GameObject {
     const oldPosition = this.transform.position;
     this.transform.position = position;
 
-    const direction = {
-      x: position.x - oldPosition.x,
-      y: position.y - oldPosition.y,
-    };
+    const direction = new Vector2D(
+      position.x - oldPosition.x,
+      position.y - oldPosition.y,
+    );
 
     if (this.children.length) {
       this.updateChildrenPosition(direction);
@@ -93,26 +100,41 @@ export class GameObject {
 
   /* -------------------------------------------------------------------- */
 
-  addComponent(component = new Component()) {
+  addComponent(component: Component) {
     component.attach(this);
     this.components.push(component);
   }
 
-  getComponent(type) {
-    return this.components.find((component) => component instanceof type);
+  /* 
+    new (...args: never[]) – підходить, якщо компоненти не мають параметрів конструктора
+
+    new (...args: any[]) – якщо компоненти можуть мати параметри
+
+    unknown[] не підходить, бо несумісний з параметрами конструктора  
+  */
+  getComponent<T extends Component>(
+    type: { new (...args: never[]): T },
+  ): T | null {
+    return this.components.find(
+      (component): component is T => component instanceof type,
+    ) || null;
   }
 
-  getComponents(type) {
-    return this.components.filter((component) => component instanceof type);
+  getComponents<T extends Component>(
+    type: { new (...args: never[]): T },
+  ): T[] {
+    return this.components.filter(
+      (component): component is T => component instanceof type,
+    );
   }
 
   /* -------------------------------------------------------------------- */
 
-  render() {
+  render(): string[] {
     if (this.image) {
       return this.image.render();
     }
 
-    return [""];
+    return [''];
   }
 }

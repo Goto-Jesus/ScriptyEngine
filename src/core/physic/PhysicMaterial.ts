@@ -1,16 +1,16 @@
-export const PhysicCombineOptions = { 
-  Average: "Average",
-  Multiply: "Multiply",
-  Minimum: "Minimum",
-  Maximum: "Maximum",
+export enum PhysicCombineOptions {
+  Average,
+  Multiply,
+  Minimum,
+  Maximum,
 };
 
 export class PhysicMaterial {
   constructor(
-    friction = 0,
-    bounciness = 0,
-    frictionCombine = PhysicCombineOptions.Average,
-    bounceCombine = PhysicCombineOptions.Average
+    public friction = 0,
+    public bounciness = 0,
+    private frictionCombine = PhysicCombineOptions.Average,
+    private bounceCombine = PhysicCombineOptions.Average,
   ) {
     this.friction = friction; // Трение
     this.bounciness = bounciness; // Упругость
@@ -20,38 +20,40 @@ export class PhysicMaterial {
     this.bounceCombine = bounceCombine;
   }
 
-  combine(physicCombineOption, physicProperty, otherMaterial, otherPhysicProperty) {
+  private combine(
+    physicCombineOption: PhysicCombineOptions,
+    physicProperty: number,
+    otherProperty: number
+  ): number {
     switch (physicCombineOption) {
       case PhysicCombineOptions.Average:
-        return (physicProperty + otherMaterial[otherPhysicProperty]) / 2;
+        return (physicProperty + otherProperty) / 2;
       case PhysicCombineOptions.Multiply:
-        return physicProperty * otherMaterial[otherPhysicProperty];
+        return physicProperty * otherProperty;
       case PhysicCombineOptions.Minimum:
-        return Math.min(physicProperty, otherMaterial[otherPhysicProperty]);
+        return Math.min(physicProperty, otherProperty);
       case PhysicCombineOptions.Maximum:
-        return Math.max(physicProperty, otherMaterial[otherPhysicProperty]);
+        return Math.max(physicProperty, otherProperty);
       default:
         return physicProperty;
     }
   }
 
   // Метод для вычисления комбинированного трения между двумя объектами
-  combineFriction(otherMaterial) {
+  combineFriction(otherMaterial: Pick<PhysicMaterial, 'friction'>): number {
     return this.combine(
       this.frictionCombine,
       this.friction,
-      otherMaterial,
-      "friction",
+      otherMaterial.friction
     );
   }
 
   // Метод для вычисления комбинированной упругости
-  combineBounciness(otherMaterial) {
+  combineBounciness(otherMaterial: Pick<PhysicMaterial, 'bounciness'>): number {
     return this.combine(
       this.bounceCombine,
       this.bounciness,
-      otherMaterial,
-      "bounciness",
+      otherMaterial.bounciness
     );
   }
 }

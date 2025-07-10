@@ -8,7 +8,7 @@ export function generatePuzzleTiles(width = 1, height = 1): string[] {
       array.push(
         ` _|` + `     _|`.repeat(width),
         `(_ ` + `  _ (_ `.repeat(width),
-        ` |` + `__( )_|`.repeat(width) + ` `
+        ` |` + `__( )_|`.repeat(width) + ` `,
       );
       continue;
     }
@@ -16,7 +16,7 @@ export function generatePuzzleTiles(width = 1, height = 1): string[] {
     array.push(
       ` |_` + `     |_`.repeat(width),
       `  _)` + ` _   _)`.repeat(width),
-      ` |` + `__( )_|`.repeat(width) + ` `
+      ` |` + `__( )_|`.repeat(width) + ` `,
     );
   }
 

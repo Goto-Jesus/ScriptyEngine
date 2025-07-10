@@ -1,2 +1,12 @@
-/node_modules
+/.vscode
+.vscode
 /dist
+dist
+/node_modules
+node_modules
+/src_legacy
+src_legacy
+
+readme.txt
+setting.txt
+

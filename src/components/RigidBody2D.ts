@@ -1,60 +1,85 @@
-import { Delay } from "../Other/Delay.js";
-import { Vector2D } from "../../../utils/Vector2D.js";
-import { BoxCollider2D } from "./Collider.js";
-import { Component } from "./Component.js";
-import { PhysicMaterial } from "../Physic/PhysicMaterial.js";
+import { Delay } from '../libs/other/Delay';
+import { Vector2D } from '../utils/Vector2D';
+import { BoxCollider2D } from '../components/Collider';
+import { Component } from '../core/Component';
+import { PhysicMaterial } from '../core/physic/PhysicMaterial';
+import { GameObject } from '../objects/GameObject';
 
+/*
 class ForceMode {
-  // F = ma           =    Force = mass * acceleration
-  // a = F/m          =    acceleration = Force / mass
-  // p = F*t          =    impulse = Force * time
-  // v = (F/m) * t    =    velocity = (Force / mass) * time
+  ~ F = ma           =    Force = mass * acceleration
+  ~ a = F/m          =    acceleration = Force / mass
+  ~ p = F*t          =    impulse = Force * time
+  ~ v = (F/m) * t    =    velocity = (Force / mass) * time
 
   get Force() {}
   get Acceleration() {}
   get Impulse() {}
   get Velocity() {}
 }
+*/
+
+interface TouchSide {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
 
 export class Rigidbody2D extends Component {
   constructor() {
     super();
-    this.mass = 10;
-    this.drag = 0;
-    this.useGravity = true;
-    this.isKinematic = false; // Если true, объект не будет подвержен физике
-
-    this.speed = 0;
-    this.velocity = Vector2D.zero; // Текущая скорость
-    this.acceleration = Vector2D.zero; // Текущее ускорение
-    this.force = Vector2D.zero; // Текущая сила
-    this.gravity = Vector2D.up.multiply(10); // Гравитация (ускорение вниз)
-    this.touchSide = {
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-    };
-
-    this.collider = null;
-    this.colliders = [];
-
-    this.delayX = new Delay(0); // Изначально максимальная скорость
-    this.delayY = new Delay(0); // Изначально максимальная скорость
   }
+  public mass = 10;
+  public drag = 0;
+  public useGravity = true;
+  public isKinematic = false; // Если true, объект не будет подвержен физике
 
-  attach(gameObject) {
+  public speed = 0;
+  public velocity = Vector2D.zero; // Текущая скорость
+  public acceleration = Vector2D.zero; // Текущее ускорение
+  public force = Vector2D.zero; // Текущая сила
+  public gravity = Vector2D.up.multiply(10); // Гравитация (ускорение вниз)
+
+  public touchSide: TouchSide = {
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  };
+
+  public touchSideSecond: TouchSide = {
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  };
+
+  public collider: BoxCollider2D | null = null;
+  public colliders: BoxCollider2D[] = [];
+
+  public delayX = new Delay(0); // Изначально максимальная скорость
+  public delayY = new Delay(0); // Изначально максимальная скорость
+
+  attach(gameObject: GameObject) {
     super.attach(gameObject);
-    this.gameObject = this.gameObject;
-    this.collider = this.gameObject.getComponent(BoxCollider2D);
-    this.collider.isStatic = false;
+
+    if (this.gameObject) {
+      this.gameObject = gameObject;
+
+      this.collider = this.gameObject.getComponent(BoxCollider2D) || null;
+
+      if (this.collider) {
+        this.collider.isStatic = false;
+      }
+    }
   }
 
   applyForce(force = new Vector2D()) {
     this.acceleration = this.acceleration.add(force.divide(this.mass)).round();
   }
 
-  update(deltaTime) {
+  update(deltaTime?: number) {
     const inAir = this.touchSide.bottom === 0;
     const onEdge =
       this.touchSide.bottom === -1 &&
@@ -67,21 +92,26 @@ export class Rigidbody2D extends Component {
 
       this.velocity = this.velocity.add(this.acceleration);
       this.speed = this.velocity.magnitude();
-      const speedX = new Vector2D(this.velocity.x, 0).magnitude();
-      const speedY = new Vector2D(0, this.velocity.y).magnitude();
 
-      this.delayY.value = 1 || Math.round(200 / speedX);
-      this.delayY.value = 1 || Math.round(200 / speedY);
+      // const speedX = new Vector2D(this.velocity.x, 0).magnitude();
+      // const speedY = new Vector2D(0, this.velocity.y).magnitude();
+
+      this.delayY.value = 1; // || Math.round(200 / speedX);
+      this.delayY.value = 1; // || Math.round(200 / speedY);
+
+      if (!this.gameObject) {
+        return;
+      }
 
       if (this.delayX.isActive) {
         this.gameObject.transform.translate(
-          new Vector2D(this.velocity.normalize().roundRadius().x, 0)
+          new Vector2D(this.velocity.normalize().roundRadius().x, 0),
         );
       }
 
       if (this.delayY.isActive) {
         this.gameObject.transform.translate(
-          new Vector2D(0, this.velocity.normalize().roundRadius().y)
+          new Vector2D(0, this.velocity.normalize().roundRadius().y),
         );
       }
     }
@@ -96,7 +126,7 @@ export class Rigidbody2D extends Component {
     // Получить список всех других коллайдеров в сцене
     const colliders = this.getColliders();
     const overlapSpace = 1;
-    const collisionColliders = [];
+    const collisionColliders: BoxCollider2D[] = [];
 
     this.touchSide = {
       top: 0,
@@ -116,11 +146,11 @@ export class Rigidbody2D extends Component {
       if (
         // collider.isStatic &&
         collider !== this.collider &&
-        this.collider.checkCollision(collider, overlapSpace)
+        this.collider?.checkCollision(collider, overlapSpace)
       ) {
         const { rollback, overlap } = this.collider.getOverlap(
           collider,
-          overlapSpace
+          overlapSpace,
         );
 
         getTouch(this.touchSide, rollback);
@@ -138,7 +168,7 @@ export class Rigidbody2D extends Component {
     ) {
       this.resolveCollision();
 
-      const mySet = new Set();
+      const mySet = new Set<number>();
 
       collisionColliders.forEach((c) => {
         mySet.add(this.calculatePhysicCollision(c));
@@ -171,7 +201,11 @@ export class Rigidbody2D extends Component {
   }
 
   resolveCollision() {
-    let currentOverlap = new Vector2D();
+    const currentOverlap = new Vector2D();
+
+    if (!this.gameObject) {
+      return;
+    }
 
     // ygol
     if (
@@ -217,25 +251,29 @@ export class Rigidbody2D extends Component {
     this.gameObject.transform.translate(currentOverlap);
   }
 
-  calculatePhysicCollision(otherCollider = new BoxCollider2D()) {
+  calculatePhysicCollision(otherCollider = new BoxCollider2D()): number {
+    if (!this.collider) {
+      return 0;
+    }
+
     const { physicMaterial } = this.collider;
 
     let bounciness = 0;
 
     if (physicMaterial) {
-      let otherPM = otherCollider.physicMaterial || new PhysicMaterial();
+      const otherPM = otherCollider.physicMaterial || new PhysicMaterial();
       bounciness = -physicMaterial.combineBounciness(otherPM);
     }
 
     return bounciness;
   }
 
-  getColliders() {
+  getColliders(): BoxCollider2D[] {
     return this.colliders;
   }
 }
 
-function getTouch(touch, vector) {
+function getTouch(touch: TouchSide, vector: Vector2D) {
   if (vector.y > touch.top) {
     touch.top = vector.y;
   }

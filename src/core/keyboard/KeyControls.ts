@@ -1,8 +1,18 @@
+type KeyCode = string;
+
+interface KeyState {
+  down: boolean;
+  pressed: boolean;
+  up: boolean;
+}
+
 export class KeyControls {
-  constructor(public keyList = ["KeyW", "KeyA", "KeyS", "KeyD"]) {
+  public keys: Record<KeyCode, KeyState>;
+
+  constructor(public keyList: KeyCode[] = ['KeyW', 'KeyA', 'KeyS', 'KeyD']) {
     this.keys = {};
 
-    keyList.forEach((keyItem) => {
+    keyList.forEach((keyItem: KeyCode) => {
       this.keys[keyItem] = {
         down: false,
         pressed: false,
@@ -10,34 +20,36 @@ export class KeyControls {
       };
     });
 
-    addEventListener("keydown", (event) => this.changeState(event));
-    addEventListener("keyup", (event) => this.changeState(event));
+    addEventListener('keydown', (event: KeyboardEvent) =>
+      this.changeState(event),
+    );
+    addEventListener('keyup', (event: KeyboardEvent) =>
+      this.changeState(event),
+    );
   }
 
-  changeState(event) {
+  private changeState(event: KeyboardEvent): void {
     if (!this.keyList.includes(event.code)) return;
 
     const keyState = this.keys[event.code];
 
-    if (event.type === "keydown") {
+    if (event.type === 'keydown') {
       if (!keyState.pressed) {
-        // Если клавиша не была уже нажата
         keyState.down = true;
         keyState.pressed = true;
         keyState.up = false;
       }
-    } else if (event.type === "keyup") {
+    } else if (event.type === 'keyup') {
       keyState.down = false;
       keyState.pressed = false;
       keyState.up = true;
     }
   }
 
-  // Этот метод нужно вызывать в конце каждого кадра, чтобы сбрасывать состояния down и up
-  update() {
-    Object.values(this.keys).forEach((keyState) => {
-      keyState.down = false; // Сброс состояния down после его обработки
-      keyState.up = false; // Сброс состояния up после его обработки
+  public update(): void {
+    Object.values(this.keys).forEach((keyState: KeyState) => {
+      keyState.down = false;
+      keyState.up = false;
     });
   }
 }

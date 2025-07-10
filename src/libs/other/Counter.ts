@@ -1,6 +1,6 @@
 export class Counter {
-  constructor(amount = 0) {
-    if (!isNaN(parseFloat(amount)) && isFinite(amount)) {
+  constructor(public amount: number = 0) {
+    if (!isNaN(amount) && isFinite(amount)) {
       this.amount = amount;
     } else {
       this.amount = 0;

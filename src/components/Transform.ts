@@ -1,10 +1,10 @@
-import { Vector2D } from "../utils/Vector2D.ts";
-import { GameObject } from "../scenes/objects/GameObject.ts";
+import { Vector2D } from '../utils/Vector2D';
+import { GameObject } from '../objects/GameObject';
 
 export class Transform {
   constructor(
     public position = new Vector2D(),
-    private gameObject: GameObject
+    public gameObject: GameObject,
   ) {}
 
   translate(direction = new Vector2D()) {

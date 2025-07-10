@@ -1,6 +1,4 @@
-export function drawOnViewport(image, position, viewport, styleId = "") {
-  return drawOnDisplay_MY(image, position, viewport, styleId);
-}
+import { Vector2D } from "../../utils/Vector2D";
 
 /**
  * @param {string[]} image
@@ -8,61 +6,80 @@ export function drawOnViewport(image, position, viewport, styleId = "") {
  * @param {string[]} viewport
  * @returns
  */
-function drawOnDisplay_MY(image: string[], position, viewport, styleId = "") {
-  const wrapper = styleId ? { start: ``, end: `` } : { start: ``, end: `` };
+export function drawOnViewport(
+  image: string[],
+  position: Vector2D,
+  viewport: string[],
+): [string[], number[][]] {
+  return drawOnDisplay(image, position, viewport);
+}
 
+function drawOnDisplay(
+  image: string[],
+  position: Vector2D,
+  viewport: string[],
+): [string[], number[][]] {
   const _viewport = [...viewport];
-  const { x: xPosition, y: yPosition } = position;
+  const _ranges = [];
+
+  const { x, y } = position;
   const heightViewport = _viewport.length;
   const heightImage = image.length;
   const heightImageInViewport =
-    yPosition + heightImage <= heightViewport
+    (y + heightImage <= heightViewport)
       ? heightImage
-      : heightImage - (yPosition + heightImage - heightViewport);
+      : heightImage - (y + heightImage - heightViewport);
 
   for (
-    let i = yPosition >= 0 ? 0 : Math.abs(yPosition);
+    let i = (y >= 0) 
+      ? 0
+      : Math.abs(y);
     i < heightImageInViewport;
     i++
   ) {
     const widthImage = image[i].length;
-    const currentViewportLine = _viewport[yPosition + i];
+    const currentViewportLine = _viewport[y + i];
     const widthViewport = currentViewportLine.length;
 
-    if (widthImage + xPosition <= 0 || widthViewport < xPosition) {
+    if (widthImage + x <= 0 || widthViewport < x) {
       continue;
     }
 
     const emptySpace = widthImage - image[i].trimStart().length;
-    const realStartImage = emptySpace + xPosition;
-    const cutImage = widthViewport - xPosition - emptySpace;
+    const realStartImage = emptySpace + x;
+    const cutImage = widthViewport - x - emptySpace;
     const imageCenter =
-      xPosition >= 0
+      x >= 0
         ? image[i].trim().substring(0, cutImage > 0 ? cutImage : 0)
         : image[i]
             .trimEnd()
-            .substring(realStartImage < 0 ? Math.abs(xPosition) : emptySpace);
+            .substring(realStartImage < 0 ? Math.abs(x) : emptySpace);
 
     if (imageCenter.length === 0) {
       continue;
     }
 
-    const viewportBefore = currentViewportLine.substring(
-      0,
-      xPosition >= 0 ? realStartImage : realStartImage > 0 ? realStartImage : 0
-    );
+    const xStart =
+      (x >= 0)
+        ? realStartImage
+        : (realStartImage > 0)
+          ? realStartImage
+          : 0;
+
+    const viewportBefore = currentViewportLine.substring(0, xStart);
 
     const realEndImage = image[i].trim().length + realStartImage;
-    const viewportAfter = currentViewportLine.substring(
-      realEndImage > 0 ? realEndImage : 0,
-      widthViewport
-    );
 
-    _viewport[yPosition + i] =
-      viewportBefore +
-      (wrapper.start + imageCenter + wrapper.end) +
-      viewportAfter;
+    const xEnd =
+      (realEndImage > 0)
+        ? realEndImage
+        : 0;
+  
+    const viewportAfter = currentViewportLine.substring(xEnd, widthViewport);
+
+    _viewport[y + i] = viewportBefore + imageCenter + viewportAfter;
+    _ranges.push([ xStart, xEnd, y + i ]);
   }
 
-  return _viewport;
+  return [_viewport, _ranges];
 }

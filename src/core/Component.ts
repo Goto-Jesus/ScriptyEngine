@@ -1,9 +1,9 @@
-export class Component {
-  constructor(
-    private gameObject = null,
-  ) { }
+import { GameObject } from '../objects/GameObject';
 
-  attach(gameObject) {
+export abstract class Component {
+  constructor(public gameObject: GameObject | null = null) {}
+
+  attach(gameObject: GameObject) {
     this.gameObject = gameObject;
   }
 }

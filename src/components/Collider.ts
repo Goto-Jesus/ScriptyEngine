@@ -1,16 +1,9 @@
-import { Size } from "../../../utils/Size.js";
-import { Vector2D } from "../../../utils/Vector2D.js";
-import { Component } from "./Component.js";
+import { Size } from '../utils/Size';
+import { Vector2D } from '../utils/Vector2D';
+import { Component } from '../core/Component';
+import { PhysicMaterial } from '../core/physic/PhysicMaterial';
+import { GameObject } from '../objects/GameObject';
 
-class Collider2D extends Component {
-  constructor(localPosition = new Vector2D(), physicMaterial = null) {
-    super();
-    this.localPosition = localPosition;
-    this.isTrigger = false;
-    this.physicMaterial = physicMaterial;
-  }
-
-  checkCollision(other = new Collider2D()) {}
 
   // onCollisionEnter() {
   //   console.log("Collision Enter");
@@ -23,31 +16,44 @@ class Collider2D extends Component {
   // onCollisionExit() {
   //   console.log("Collision Exit");
   // }
+abstract class Collider2D extends Component {
+  constructor(
+    public localPosition: Vector2D,
+    public physicMaterial: PhysicMaterial | null = null,
+    public isTrigger: boolean = false,
+  ) {
+    super();
+  }
+
+  checkCollision() {}
 }
 
 export class BoxCollider2D extends Collider2D {
+  private globalPosition = new Vector2D();
+  private colliderPosition = new Vector2D();
+  public isStatic = true;
+
   constructor(
-    size = new Size(1, 1),
-    localPosition = new Vector2D(),
-    physicMaterial = null
+    public size = new Size(1, 1),
+    public localPosition = new Vector2D(),
+    public physicMaterial: PhysicMaterial | null = null,
   ) {
     super(localPosition, physicMaterial);
-    this.size = size;
-    this.globalPosition = new Vector2D();
-    this.colliderPosition = new Vector2D();
-    this.isStatic = true;
   }
 
-  attach(gameObject) {
+  attach(gameObject: GameObject) {
     super.attach(gameObject);
-    this.globalPosition = this.gameObject.transform.position;
+
+    if (this.gameObject) {
+      this.globalPosition = this.gameObject.transform.position;
+    }
   }
 
-  setLocalPosition(localPosition) {
+  setLocalPosition(localPosition: Vector2D) {
     this.localPosition = localPosition;
   }
 
-  setSize(size) {
+  setSize(size: Size) {
     this.size = size;
   }
 
@@ -55,7 +61,7 @@ export class BoxCollider2D extends Collider2D {
     this.colliderPosition = this.globalPosition.add(this.localPosition);
   }
 
-  checkCollision(other = new BoxCollider2D(), expand = 0) {
+  checkCollision(other: BoxCollider2D = new BoxCollider2D(), expand = 0) {
     this.updateColliderPosition();
     other.updateColliderPosition();
 
@@ -126,7 +132,7 @@ export class BoxCollider2D extends Collider2D {
     };
   }
 
-  getColliderTouch(other, expand = 1) {
+  getColliderTouch(other: BoxCollider2D, expand: number = 1) {
     if (!this.checkCollision(other, expand)) {
       return Vector2D.zero;
     }
@@ -134,12 +140,3 @@ export class BoxCollider2D extends Collider2D {
     return this.getOverlap(other, expand).rollback;
   }
 }
-
-
-/* 
-
-  
-
-
-
-*/
