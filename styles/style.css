@@ -55,6 +55,51 @@ body {
   border-radius: 2px;
 }
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/* Основные цвета текста */
+#w { color: #f8f8f8; }                /* Чистый белый с легким серым оттенком */
+#bk { color: #1a1a1a; }               /* Мягкий черный вместо pure black */
+#r { color: #ff4d4d; }                /* Яркий, но не резкий красный */
+#g { color: #6bbf47; }                /* Приятный зеленый (как в примере +) */
+#bl { color: #4d8bf0; }               /* Спокойный синий (как в примере @) */
+#y { color: #ffdb5e; }                /* Теплый желтый (похож на пример -) */
+#m { color: #e35aed; }                /* Фиолетовый (как в примере ?) */
+#c { color: #2ddcbc; }                /* Бирюзовый (как в примере ~) */
+
+/* Стили текста */
+#B { 
+  font-weight: bold;
+  color: #1f1f1f;                    /* Темно-серый для bold (как в примере todo) */
+}
+#rv {
+  color: #1a1a1a;
+  background-color: #f0f0f0;
+  unicode-bidi: bidi-override;
+  direction: rtl;
+}
+
+/* Цвета фона с прозрачностью */
+#bW { background-color: rgba(248, 248, 248, 0.9); }
+#bBk { background-color: rgba(26, 26, 26, 0.85); }
+#bR { background-color: rgba(255, 77, 77, 0.85); }
+#bG { background-color: rgba(107, 191, 71, 0.85); }
+#bBl { background-color: rgba(77, 139, 240, 0.85); }
+#bY { background-color: rgba(255, 219, 94, 0.85); }
+#bM { background-color: rgba(227, 90, 237, 0.85); }
+#bC { background-color: rgba(45, 220, 188, 0.85); }
+
+#reset {
+  color: inherit;
+  background-color: transparent;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 .block {
   display: flex;
   flex-direction: column;

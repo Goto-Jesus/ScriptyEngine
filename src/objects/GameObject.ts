@@ -4,12 +4,14 @@ import { Transform } from '../components/Transform';
 import { Image } from '../components/Image';
 import { Animation } from '../components/Animation';
 import { Animator } from '../components/Animator';
+import { Colors } from '../utils/colors';
 
 type ImageTypes = Image | Animation | Animator;
 
 export class GameObject {
-  public image: ImageTypes | null = null;
+  public image?: ImageTypes | null = null;
   public transform: Transform;
+  public color?: keyof Colors;
 
   constructor(
     public name = 'gameObject',

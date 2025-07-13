@@ -10,17 +10,26 @@ export function changeContent(id: string, string: string) {
   el.innerHTML = viewport;
 }
 
-function changeCharsEasy(string: string) {
-  return string.replace(/</g, '&#60;').replace(/>/g, '&#62;');
-}
-
-// function changeChars(string: string) {
-//   return string
-//     .replace(/<(\/?i\s+id="[^"]+"|\/i)>/g, (match) =>
-//       match.replace(/</g, '##LEFT##').replace(/>/g, '##RIGHT##'),
-//     )
-//     .replace(/</g, '&#60;')
-//     .replace(/>/g, '&#62;')
-//     .replace(/##LEFT##/g, '<')
-//     .replace(/##RIGHT##/g, '>');
+// function changeCharsEasyOld(string: string) {
+//   return string.replace(/</g, '&#60;').replace(/>/g, '&#62;');
 // }
+
+function changeCharsEasy(string: string): string {
+  // 1. Сховати теги <i ...> і </i>
+  const placeholders: string[] = [];
+  const protectedString = string.replace(/<i[^>]*?>|<\/i>/g, (match) => {
+    placeholders.push(match);
+    return `%%PLACEHOLDER_${placeholders.length - 1}%%`;
+  });
+
+  // 2. Замінити < і > на HTML-коди
+  const escaped = protectedString
+    .replace(/</g, '&#60;')
+    .replace(/>/g, '&#62;');
+    // .replace(/ф/g, '\u00A0');
+
+  // 3. Вставити назад збережені теги <i ...> і </i>
+  const restored = escaped.replace(/%%PLACEHOLDER_(\d+)%%/g, (_, index) => placeholders[+index]);
+
+  return restored;
+}

@@ -4,7 +4,6 @@ import { Vector2D } from '../utils/Vector2D';
 import { generateArea } from '../libs/generates/generateArea';
 
 import { GameObject } from '../objects/GameObject';
-
 import { AsciiImage } from '../components/AsciiImage';
 import { Animation } from '../components/Animation';
 import { BoxCollider2D } from '../components/Collider';
@@ -12,13 +11,14 @@ import { Rigidbody2D } from '../components/RigidBody2D';
 
 import { Component } from './Component';
 import { PhysicMaterial } from './physic/PhysicMaterial';
+import { Colors } from '../utils/colors';
 
 interface AreaConfig {
   name?: string;
-  position?: Vector2D;
-  size?: Size;
+  position?: { x: number; y: number } | Vector2D;
+  size?: { height: number; width: number } | Size;
   symbol?: string;
-  rigidbody?: Rigidbody2D | null;
+  rigidbody?: boolean;
 }
 
 interface AnimConfig {
@@ -28,17 +28,18 @@ interface AnimConfig {
 }
 
 interface ObjectConfig {
-  name?: string,
-  position?: { x: number, y: number } | Vector2D,
-  animation?: AnimConfig,
+  name?: string;
+  color?: keyof Colors;
+  position?: { x: number; y: number } | Vector2D;
+  animation?: AnimConfig;
   collider?: {
-    size?: { height: number, width: number } | Size,
-    localPosition?: { x: number, y: number } | Vector2D,
-    physicMaterial?: PhysicMaterial,
-  },
-  rigidbody?: boolean,
-  image?: string[],
-  customComponents?: Component[],
+    size?: { height: number; width: number } | Size;
+    localPosition?: { x: number; y: number } | Vector2D;
+    physicMaterial?: PhysicMaterial;
+  };
+  rigidbody?: boolean;
+  image?: string[];
+  customComponents?: Component[];
 }
 
 export class SceneManager {
@@ -63,8 +64,9 @@ export class SceneManager {
   createObject(config: ObjectConfig) {
     const {
       name = 'gameObject',
-      position: {x = 0, y = 0} = Vector2D.zero,
+      position: { x = 0, y = 0 } = Vector2D.zero,
       animation = null,
+      color = null,
       collider = null,
       rigidbody = null,
       image = null,
@@ -74,6 +76,10 @@ export class SceneManager {
     const newObject = new GameObject(name);
 
     newObject.setPosition(new Vector2D(x, y));
+
+    if (color) {
+      newObject.color = color;
+    }
 
     if (image) {
       newObject.addComponent(new AsciiImage(image));
@@ -88,7 +94,7 @@ export class SceneManager {
     if (collider) {
       const {
         size: { width, height } = {},
-        localPosition: { x=0, y =0 } = {},
+        localPosition: { x = 0, y = 0 } = {},
         physicMaterial,
       } = collider;
 
@@ -124,17 +130,17 @@ export class SceneManager {
   createArea(config: AreaConfig) {
     const {
       name = 'boxArea',
-      position = Vector2D.zero,
+      position = { x: 0, y: 0 },
       size = new Size(),
       symbol = '█',
-      rigidbody = null,
+      rigidbody = false,
     } = config;
     const { width, height } = size;
 
     const newObject = new GameObject(name);
     const newCollider = new BoxCollider2D(size);
 
-    newObject.setPosition(position);
+    newObject.setPosition(new Vector2D(position.x, position.y));
     newObject.addComponent(new AsciiImage(generateArea(width, height, symbol)));
 
     newObject.addComponent(newCollider);

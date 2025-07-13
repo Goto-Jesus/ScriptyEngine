@@ -8,7 +8,7 @@ export class GameEngine {
 
   constructor(
     private isPaused = false,
-    private goalFps = 60,
+    private goalFps = 60, // 60
     public keyboard = new KeyControls([
       'KeyW',
       'KeyA',
@@ -50,7 +50,7 @@ export class GameEngine {
         this.render(render); // Отрисовываем игру
       }
 
-      setTimeout(next, 1); // Запускаем следующий кадр
+      setTimeout(next, 0); // Запускаем следующий кадр
     };
 
     next(); // Запуск игрового цикла
